@@ -1,12 +1,15 @@
-local M = {}
-
 local debug_log = function(msg)
-	vim.notify("[splash.nvim] dbg:" .. tostring(msg), vim.log.levels.DEBUG)
+	--  vim.notify("[splash.nvim] dbg:" .. tostring(msg), vim.log.levels.DEBUG)
 end
 
 local error_log = function(msg)
-	vim.notify("[splash.nvim] err:" .. tostring(msg), vim.log.levels.ERROR)
+	--	vim.notify("[splash.nvim] err:" .. tostring(msg), vim.log.levels.ERROR)
 end
+
+local M = {
+	debug_log = debug_log,
+	error_log = error_log,
+}
 
 M.set_buffer_options = function(options)
 	for key, value in pairs(options) do

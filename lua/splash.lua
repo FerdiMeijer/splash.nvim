@@ -33,12 +33,33 @@ M.start_splash = function()
 	local restore = utils.get_window_options(splash_window_options)
 	utils.set_window_options(splash_window_options)
 
-	local buf = 0
-	local win_height = vim.api.nvim_win_get_height(buf)
-	local win_width = vim.api.nvim_win_get_width(buf)
+	local win_width = vim.o.columns
+	local win_height = vim.o.lines
+	utils.debug_log("Window dimensions: " .. win_width .. "x" .. win_height)
 
 	local lines = M.options.lines or utils.get_lines_from_file(M.options.file)
-	local splash_height, splash_width = utils.get_dimensions(lines)
+	local splash_width, splash_height = utils.get_dimensions(lines)
+	utils.debug_log("Splash dimensions: " .. splash_width .. "x" .. splash_height)
+
+	-- local col = math.floor((win_width - splash_width) / 2)
+	-- local row = math.floor((win_height - splash_height) / 2)
+
+	-- local win_config = {
+	-- 	relative = "editor",
+	-- 	width = splash_width,
+	-- 	height = splash_height,
+	-- 	col = col,
+	-- 	row = row,
+	-- 	style = "minimal",
+	-- 	border = "none",
+	-- 	focusable = true, -- make the splash window not focusable
+	-- }
+	--
+	-- local splash_buf = vim.api.nvim_create_buf(false, true) -- create a new buffer: no file, scratch buffer
+	-- vim.api.nvim_buf_set_lines(splash_buf, 0, 0, false, lines)
+	--
+	-- local splash_win = vim.api.nvim_open_win(splash_buf, true, win_config)
+	-- utils.debug_log("Opened splash window ID: " .. splash_win)
 
 	local prepend_columns = math.floor(win_width / 2) - math.floor(splash_width / 2)
 
@@ -60,16 +81,19 @@ M.start_splash = function()
 		table.insert(lines, 1, string.rep(" ", win_width)) -- add an empty line at the top
 	end
 
-	vim.api.nvim_buf_set_lines(buf, -1, -1, false, lines)
-	-- vim.bo.modifiable = false
+	vim.api.nvim_buf_set_lines(0, -1, -1, false, lines)
 
 	-- whenever we leave this buffer/window, we want to delete it.
 	vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
 		pattern = "<buffer>",
 		callback = function()
+			utils.debug_log("Leaving splash screen buffer/window, restoring options...")
+			-- vim.api.nvim_win_close(splash_win, true) -- close the splash window
+			-- vim.api.nvim_buf_delete(splash_buf, { force = true }) -- delete the splash buffer
+
 			utils.set_window_options(restore)
 			-- delete the splash buffer
-			vim.cmd("bwipeout")
+			--	vim.cmd("bwipeout")
 		end,
 	})
 
@@ -77,6 +101,9 @@ M.start_splash = function()
 	vim.api.nvim_create_autocmd({ "InsertEnter", "StdinReadPre" }, {
 		pattern = "<buffer>",
 		callback = function()
+			-- vim.api.nvim_win_close(splash_win, true) -- close the splash window
+			-- vim.api.nvim_buf_delete(splash_buf, { force = true }) -- delete the splash buffer
+
 			utils.set_window_options(restore)
 			vim.cmd("stopinsert")
 			vim.cmd("enew")
@@ -85,7 +112,6 @@ M.start_splash = function()
 
 	vim.api.nvim_create_autocmd("VimResized", {
 		callback = function()
-			utils.debug_log("Window resized, updating splash screen...")
 			-- print("Resizing splash screen...")
 			--M.start_splash(), -- re-run the splash screen when the window is resized
 		end,
@@ -93,15 +119,17 @@ M.start_splash = function()
 end
 
 local defaults = {
-	file = plugin_dir .. "dragon.txt",
+	file = plugin_dir .. "skeleton.txt",
 	message = "Welcome to Neovim!",
 	-- Check if the splash screen should be shown,
 	-- do not show it if the user is in insert mode or if there are no buffers open,
-	-- or command line arguments where passed to open a specific file.
+	-- or command line arguments where passed, i.e. to open a specific file.
 	enable_splash = utils.enable_splash_screen,
 }
 
 M.setup = function(opts)
+	vim.opt.shortmess:append("I") -- disable default Neovim intro message
+
 	M.options = vim.tbl_deep_extend("force", defaults, opts or {})
 	if M.options.enable_splash() then
 		M.start_splash()
