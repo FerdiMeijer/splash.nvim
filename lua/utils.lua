@@ -14,7 +14,7 @@ local M = {
 local get_vim_dimensions = function()
 	local vim_width = vim.o.columns
 	local vim_height = vim.o.lines
-	debug_log("Resized dimensions: " .. vim_width .. "x" .. vim_height)
+
 	return vim_width, vim_height
 end
 
@@ -25,17 +25,16 @@ M.set_buffer_options = function(options)
 	end
 end
 
-M.set_window_options = function(options)
-	local winid = vim.api.nvim_get_current_win()
+M.set_window_options = function(window, options)
 	for key, value in pairs(options) do
-		vim.wo[winid][key] = value
+		vim.wo[window][key] = value
 	end
 end
 
-M.get_window_options = function(options)
+M.get_window_options = function(window, options)
 	local current = {}
 	for key, _ in pairs(options) do
-		current[key] = vim.wo[key]
+		current[key] = vim.wo[window][key]
 	end
 	return current
 end
@@ -48,16 +47,15 @@ M.splash_screen_needed = function()
 		or vim.fn.empty(vim.fn.tabpagebuflist()) == 1
 		or vim.fn.empty(vim.api.nvim_get_current_buf()) == 1
 
-	debug_log("Should show splash screen: " .. tostring(result))
 	return result
 end
 
 local open_file = function(file_path)
-	debug_log("Opening file for splash screen: " .. file_path)
+	debug_log("opening file for splash screen: " .. file_path)
 	local expanded_path = vim.fn.expand(file_path)
 	local file, err = io.open(expanded_path, "r")
 	if err then
-		error_log("Error opening file for splash screen: " .. err)
+		error_log("error opening file '" .. file_path .. "' for splash screen: " .. err)
 
 		return M
 	end
@@ -75,7 +73,7 @@ M.get_dimensions = function(lines)
 		splash_width = math.max(splash_width, #line)
 	end
 
-	debug_log("Splash screen dimensions: " .. splash_width .. "x" .. splash_height)
+	debug_log("splash dimensions: " .. splash_width .. "x" .. splash_height)
 	return splash_width, splash_height
 end
 
@@ -119,7 +117,7 @@ M.create_splash_window = function(splash_width, splash_height, buffer, namespace
 	vim.api.nvim_set_hl(namespace, "Normal", options.highlight)
 	vim.api.nvim_win_set_hl_ns(splash_win, namespace)
 
-	debug_log("Opened splash window ID: " .. splash_win)
+	debug_log("opened splash window: " .. splash_win)
 
 	return splash_win
 end
