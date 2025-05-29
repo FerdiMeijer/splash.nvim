@@ -18,18 +18,25 @@ M.start_splash = function()
 	M.buffer = utils.create_splash_buffer(lines)
 	M.namespace = vim.api.nvim_create_namespace("splash")
 	M.window = utils.create_splash_window(splash_width, splash_height, M.buffer, M.namespace, M.options.window)
+	M.auto_cmds = {}
+	for _, event in ipairs({ "ModeChanged", "CursorMoved", "TextChanged", "WinScrolled" }) do
+		local id = vim.api.nvim_create_autocmd(event, {
+			callback = function()
+				utils.debug_log(event .. ": closing window/buf " .. M.window .. "/" .. M.buffer)
 
-	M.close_autocmd = vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved", "TextChanged", "WinScrolled" }, {
-		callback = function()
-			utils.debug_log("auto_cmd: close window/buf " .. M.window .. "/" .. M.buffer)
+				utils.close_splash(M.buffer, M.window, M.namespace)
+				for _, id in ipairs(M.auto_cmds) do
+					vim.api.nvim_del_autocmd(id)
+				end
 
-			utils.close_splash(M.buffer, M.window, M.namespace)
-			vim.api.nvim_del_autocmd(M.close_autocmd)
-			vim.api.nvim_del_autocmd(M.resize_autocmd)
-			M.window = nil
-			M.buffer = nil
-		end,
-	})
+				vim.api.nvim_del_autocmd(M.resize_autocmd)
+				M.window = nil
+				M.buffer = nil
+			end,
+		})
+
+		table.insert(M.auto_cmds, id)
+	end
 
 	M.resize_autocmd = vim.api.nvim_create_autocmd("VimResized", {
 		callback = function()
