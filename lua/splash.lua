@@ -7,7 +7,7 @@ M.current_win = nil
 M.buffer = nil
 M.namespace = nil
 
-local splash_window_options = {
+local current_window_options = {
 	number = false,
 	relativenumber = false,
 	cursorline = false,
@@ -24,8 +24,8 @@ M.start = function()
 	end
 
 	M.current_win = vim.api.nvim_get_current_win()
-	M.restore_win_opts = utils.get_window_options(M.current_win, splash_window_options)
-	utils.set_window_options(M.current_win, splash_window_options)
+	M.restore_win_opts = utils.get_window_options(M.current_win, current_window_options)
+	utils.set_window_options(M.current_win, current_window_options)
 
 	local lines = M.options.lines or utils.get_lines_from_file(M.options.file)
 	local splash_width, splash_height = utils.get_dimensions(lines)
@@ -42,14 +42,14 @@ M.setup_auto_cmds = function()
 		callback = function()
 			-- slight delay to allow lazy-loaded plugins to settle
 			vim.defer_fn(function()
-				for _, event in ipairs({ "ModeChanged", "CursorMoved" }) do --, "CursorMoved", "TextChanged", "WinScrolled"
-					local id = vim.api.nvim_create_autocmd(event, {
+				for _, event in ipairs({ "ModeChanged", "CursorMoved" }) do --, "TextChanged", "WinScrolled"
+					local auto_cmd = vim.api.nvim_create_autocmd(event, {
 						callback = function()
 							M.close(event)
 						end,
 					})
 
-					table.insert(M.auto_cmds, id)
+					table.insert(M.auto_cmds, auto_cmd)
 				end
 
 				table.insert(
@@ -60,7 +60,7 @@ M.setup_auto_cmds = function()
 						end,
 					})
 				)
-			end, 100) -- You can adjust the delay
+			end, 100)
 		end,
 	})
 end
@@ -79,6 +79,7 @@ M.close = function(event)
 
 	M.window = nil
 	M.buffer = nil
+	M.auto_cmds = nil
 end
 
 M.resize = function(event)
@@ -96,7 +97,7 @@ M.resize = function(event)
 end
 
 local defaults = {
-	file = plugin_dir .. "hal9000.txt",
+	file = plugin_dir .. "dragon.txt",
 	window = {
 		border = "none",
 		highlight = { bg = "NONE", blend = 0 },
@@ -105,10 +106,9 @@ local defaults = {
 }
 
 M.setup = function(opts)
-	vim.opt.shortmess:append("I") -- disable default Neovim intro message
-
 	M.options = vim.tbl_deep_extend("force", defaults, opts or {})
 	if M.options.enable_splash_fn() then
+		vim.opt.shortmess:append("I") -- disable default Neovim intro message
 		M.start()
 	end
 end
