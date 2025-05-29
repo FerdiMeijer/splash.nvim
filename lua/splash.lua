@@ -47,12 +47,12 @@ M.start_splash = function()
 end
 
 local defaults = {
-	file = plugin_dir .. "skeleton.txt",
+	-- file = plugin_dir .. "skeleton.txt",
 	window = {
 		border = "none",
 		highlight = { bg = "NONE", blend = 0 },
 	},
-	lines = { "Welcome to Neovim!" },
+	-- lines = { "Welcome to Neovim!", "Set the file option to point to an ascii art" },
 	enable_splash = utils.splash_screen_needed,
 }
 
