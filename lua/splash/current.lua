@@ -1,9 +1,8 @@
-local utils = require("splash.utils")
+local log = require("splash.logging")
 local M = {}
 
 M.window = {}
 M.originals = {}
-M.current_options = {}
 
 local overrides = {
 	number = false,
@@ -67,14 +66,14 @@ local create_splash_window = function(splash_width, splash_height, buffer, names
 	vim.api.nvim_set_hl(namespace, "Normal", options.highlight)
 	vim.api.nvim_win_set_hl_ns(splash_win, namespace)
 
-	utils.debug_log("opened splash window: " .. splash_win)
+	log.debug("opened splash window: " .. splash_win)
 
 	return splash_win
 end
 
 M.load = function(splash, options)
 	M.namespace = vim.api.nvim_create_namespace("splash")
-	M.window = create_splash_window(splash.width, splash.height, splash.buffer, M.namespace, M.options.window)
-	-- utils.setup_auto_cmds(M.buffer, M.window, M.namespace, window)
+	M.window = create_splash_window(splash.width, splash.height, splash.buffer, M.namespace, options.window)
 end
+
 return M

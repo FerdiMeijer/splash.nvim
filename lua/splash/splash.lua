@@ -1,4 +1,4 @@
-local utils = require("splash.utils")
+local log = require("splash.logging")
 
 local M = {}
 
@@ -9,17 +9,19 @@ local get_dimensions = function(lines)
 		splash_width = math.max(splash_width, #line)
 	end
 
-	utils.debug_log("splash dimensions: " .. splash_width .. "x" .. splash_height)
+	log.debug("splash dimensions: " .. splash_width .. "x" .. splash_height)
+
 	return splash_width, splash_height
 end
 
 local open_file = function(file_path)
-	utils.debug_log("opening file for splash screen: " .. file_path)
+	log.debug("opening file for splash screen: " .. file_path)
 	local expanded_path = vim.fn.expand(file_path)
 	local file, err = io.open(expanded_path, "r")
 	if err then
-		utils.error_log("error opening file '" .. file_path .. "' for splash screen: " .. err)
-		error()
+		local msg = "error opening file '" .. file_path .. "' for splash screen: " .. err
+		log.err(msg)
+		error(msg)
 	end
 
 	return file
@@ -72,13 +74,13 @@ local create_splash_window = function(splash_width, splash_height, buffer, names
 	vim.api.nvim_set_hl(namespace, "Normal", options.highlight)
 	vim.api.nvim_win_set_hl_ns(splash_win, namespace)
 
-	utils.debug_log("opened splash window: " .. splash_win)
+	log.debug("opened splash window: " .. splash_win)
 
 	return splash_win
 end
 
 M.load = function(options)
-	utils.debug_log("loading splash")
+	log.debug("loading splash")
 	local lines = options.lines or get_lines_from_file(options.file)
 	local splash_width, splash_height = get_dimensions(lines)
 	M.width = splash_width
@@ -90,7 +92,7 @@ M.load = function(options)
 end
 
 M.resize = function()
-	utils.debug_log("resizing splash")
+	log.debug("resizing splash")
 	local vim_width, vim_height = get_vim_dimensions()
 	local window_config = vim.api.nvim_win_get_config(M.window)
 	window_config.col = math.floor((vim_width - window_config.width) / 2)
@@ -100,7 +102,7 @@ M.resize = function()
 end
 
 M.close = function()
-	utils.debug_log("closing splash")
+	log.debug("closing splash")
 	vim.api.nvim_buf_clear_namespace(M.buffer, M.namespace, 0, -1)
 	vim.api.nvim_win_close(M.window, false)
 	vim.api.nvim_buf_delete(M.buffer, {})
