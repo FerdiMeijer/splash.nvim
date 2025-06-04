@@ -2,8 +2,8 @@
 
 `splash.nvim` is a configurable Neovim startup/splash screen plugin. It allows you to display custom ASCII art or text on Neovim startup, with flexible configuration for appearance and behavior.
 
-![image](https://raw.githubusercontent.com/ferdimeijer/splash.nvim/demo1.png)
-![image](https://raw.githubusercontent.com/ferdimeijer/splash.nvim/demo2.png)
+![image](https://raw.githubusercontent.com/ferdimeijer/splash.nvim/main/demo1.png)
+![image](https://raw.githubusercontent.com/ferdimeijer/splash.nvim/main/demo2.png)
 
 ## Features
 
