@@ -76,5 +76,3 @@ require("splash").setup({
 
 MIT
 See [LICENSE](LICENSE) for details.
-```
-
