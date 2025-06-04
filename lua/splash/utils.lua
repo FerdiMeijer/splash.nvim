@@ -1,7 +1,7 @@
 local M = {}
 
 -- check if the splash screen should be shown,
--- do not show splash screen if:
+-- does not show splash screen if:
 -- - the user is in insert mode
 -- - if there are no buffers open,
 -- - when command line arguments were passed, i.e. to open a specific file.

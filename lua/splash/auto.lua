@@ -2,7 +2,7 @@ local M = {}
 
 M.auto_cmds = {}
 
-M.setup_close = function(callback)
+M.setup_auto_close = function(callback)
 	vim.api.nvim_create_autocmd("VimEnter", {
 		callback = function()
 			-- slight delay to allow other plugins to settle
@@ -28,17 +28,9 @@ M.setup_close = function(callback)
 	})
 end
 
-M.setup_resize = function(callback)
+M.setup_auto_resize = function(callback)
 	local resize_auto_cmd = vim.api.nvim_create_autocmd("VimResized", {
-		callback = function()
-			callback()
-
-			-- auto cleanup auto_cmds
-			for _, id in ipairs(M.auto_cmds) do
-				vim.api.nvim_del_autocmd(id)
-			end
-			M.auto_cmds = {}
-		end,
+		callback = callback,
 	})
 
 	table.insert(M.auto_cmds, resize_auto_cmd)

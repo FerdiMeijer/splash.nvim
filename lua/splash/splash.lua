@@ -53,6 +53,24 @@ local get_vim_dimensions = function()
 	return vim_width, vim_height
 end
 
+local remove_leading_whitespace = function(lines)
+	local min_leading = math.huge
+	for _, line in ipairs(lines) do
+		local leading = line:match("^(%s*)")
+		min_leading = math.min(min_leading, #leading)
+	end
+	log.debug("minimum leading whitespace: " .. min_leading)
+	if min_leading == 0 or min_leading == math.huge then
+		return lines
+	end
+	local trimmed = {}
+	for i, line in ipairs(lines) do
+		trimmed[i] = line:sub(min_leading + 1)
+	end
+	log.debug("trimmed lines: " .. vim.inspect(trimmed))
+	return trimmed
+end
+
 local create_splash_window = function(splash_width, splash_height, buffer, namespace, options)
 	local vim_width, vim_height = get_vim_dimensions()
 
@@ -67,9 +85,9 @@ local create_splash_window = function(splash_width, splash_height, buffer, names
 		style = "minimal",
 		focusable = false,
 		noautocmd = true,
-		border = options.border,
+		border = options.border or "none",
 	}
-	local splash_win = vim.api.nvim_open_win(buffer, true, win_config)
+	local splash_win = vim.api.nvim_open_win(buffer, false, win_config)
 
 	vim.api.nvim_set_hl(namespace, "Normal", options.highlight)
 	vim.api.nvim_win_set_hl_ns(splash_win, namespace)
@@ -82,6 +100,11 @@ end
 M.load = function(options)
 	log.debug("loading splash")
 	local lines = options.lines or get_lines_from_file(options.file)
+	if options.remove_leading_whitespace then
+		log.debug("removing leading whitespace from splash lines")
+		lines = remove_leading_whitespace(lines)
+	end
+
 	local splash_width, splash_height = get_dimensions(lines)
 	M.width = splash_width
 	M.height = splash_height
