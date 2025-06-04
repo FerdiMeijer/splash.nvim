@@ -15,7 +15,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 {
     "ferdimeijer/splash.nvim",
     opts = {
-        -- optionally: your configuration options here
+        -- optional configuration here
     },
 }
 ```
@@ -27,7 +27,7 @@ use {
     "ferdimeijer/splash.nvim",
     config = function()
         require("splash").setup({
-            -- optionally: your configuration options here
+            -- optional configuration here
         })
     end,
 }
@@ -39,21 +39,30 @@ use {
 
 ```lua
 require("splash").setup({
-    input = { 
+    lines = { 
         "hello",
         "neovim!"
     },-- text to display. Defaults to empty (overrides file option if set)
     file = "~/.config/nvim/lua/dragon.txt", -- Path to ASCII art file. Defaults to `<plugin_dir>/../art/dragon.txt`
     window = {
         --see :h nvim_open_win config parameters for more border and highlight options
-        highlight = { bg = "NONE", fg = "#800000", blend = 0 }, -- Window highlight options
-        border = { "single", highlight = { bg = "NONE", blend = 0 } },
- 		--border = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" }, -- custom border
+        highlight = { bg = "NONE", fg = "#800000", blend = 0 }, -- splash window highlight options to change background, foreground color and blend
+        border = { "single" }, -- or rounded, double, solid, shadow, none
+        -- border = { -- custom border with same highlight group as splash window
+	   	-- 	{ "┌", "Normal" },
+	   	-- 	{ "─", "Normal" },
+	   	-- 	{ "┐", "Normal" },
+	   	-- 	{ "│", "Normal" },
+	   	-- 	{ "┘", "Normal" },
+	   	-- 	{ "─", "Normal" },
+	   	-- 	{ "└", "Normal" },
+	   	-- 	{ "│", "Normal" },
+	    -- },
     }, -- defaults to `{ border = "none", highlight = { bg = "NONE", blend = 0 } }`
     enable_logging = false, -- Enable splash logging to log buffer. Defaults to false
     remove_leading_whitespace = true, -- remove leading whitespace that can be removed from each line of input this will make sure the art is centered correctly. Defaults to true
-    enable_splash = true -- function to determine if splash is shown, 
-            -- defaults to a function that does not show splash screen if:
+    enable_splash = true -- boolean or function to determine if splash is shown, 
+            -- defaults to a function that returns false if:
             -- * the user is in insert mode
             -- * if there are no buffers open already,
             -- * when command line arguments were used to start neovim, i.e. to open a specific file.
