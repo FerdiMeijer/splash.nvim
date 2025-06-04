@@ -46,7 +46,7 @@ require("splash").setup({
         "hello",
         "neovim!"
     },-- text to display. Defaults to empty (overrides file option if set)
-    file = "~/.config/nvim/lua/dragon.txt", -- Path to ASCII art file. Defaults to `<plugin_dir>/../art/dragon.txt`
+    file = "~/.config/nvim/lua/hal9000.txt", -- Path to ASCII art file. Defaults to `<plugin_dir>/../art/dragon.txt`
     window = {
         --see :h nvim_open_win config parameters for more border and highlight options
         highlight = { bg = "NONE", fg = "#800000", blend = 0 }, -- splash window highlight options to change background, foreground color and blend
