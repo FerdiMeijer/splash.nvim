@@ -6,7 +6,6 @@ M.originals = {}
 
 local overrides = {
 	number = false,
-	relativenumber = false,
 	cursorline = false,
 	cursorcolumn = false,
 	signcolumn = "no",
@@ -25,16 +24,19 @@ local get_window_options = function(window, options)
 	for key, _ in pairs(options) do
 		current[key] = vim.wo[window][key]
 	end
+
 	return current
 end
 
 M.override_win_opts = function()
 	M.window = vim.api.nvim_get_current_win()
 	M.originals = get_window_options(M.window, overrides)
+	log.debug("Applying window: " .. M.window .. " options: " .. vim.inspect(overrides))
 	set_window_options(M.window, overrides)
 end
 
 M.restore_win_opts = function()
+	log.debug("Restoring window: " .. M.window .. " options: " .. vim.inspect(M.originals))
 	set_window_options(M.window, M.originals)
 end
 
