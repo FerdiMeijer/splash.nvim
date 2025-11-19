@@ -6,6 +6,7 @@ M.originals = {}
 
 local overrides = {
 	number = false,
+	relativenumber = false,
 	cursorline = false,
 	cursorcolumn = false,
 	signcolumn = "no",
