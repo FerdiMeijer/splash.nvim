@@ -5,9 +5,9 @@ M.auto_cmds = {}
 M.setup_auto_close = function(callback)
 	vim.api.nvim_create_autocmd("VimEnter", {
 		callback = function()
-			-- slight delay to allow other plugins to settle
-			vim.defer_fn(function()
-				for _, event in ipairs({ "ModeChanged", "CursorMoved" }) do --, "TextChanged", "WinScrolled"
+			-- Schedule in next event loop for safety
+			vim.schedule(function()
+				for _, event in ipairs({ "ModeChanged", "CursorMoved", "BufEnter" }) do
 					local auto_cmd = vim.api.nvim_create_autocmd(event, {
 						callback = function()
 							callback()
@@ -23,7 +23,7 @@ M.setup_auto_close = function(callback)
 
 					table.insert(M.auto_cmds, auto_cmd)
 				end
-			end, 100)
+			end)
 		end,
 	})
 end

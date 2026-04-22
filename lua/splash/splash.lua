@@ -14,26 +14,16 @@ local get_dimensions = function(lines)
 	return splash_width, splash_height
 end
 
-local open_file = function(file_path)
-	log.debug("opening file for splash screen: " .. file_path)
-	local expanded_path = vim.fn.expand(file_path)
-	local file, err = io.open(expanded_path, "r")
-	if err then
-		local msg = "error opening file '" .. file_path .. "' for splash screen: " .. err
+local get_lines_from_file = function(file_path)
+	log.debug("reading file for splash screen: " .. file_path)
+	local expanded_path = vim.fs.normalize(file_path)
+
+	local ok, lines = pcall(vim.fn.readfile, expanded_path)
+	if not ok then
+		local msg = "error reading file '" .. file_path .. "': " .. lines
 		log.err(msg)
 		error(msg)
 	end
-
-	return file
-end
-
-local get_lines_from_file = function(file_path)
-	local lines = {}
-	local file = open_file(file_path)
-	for line in file:lines() do
-		table.insert(lines, line)
-	end
-	file:close()
 
 	return lines
 end
@@ -115,24 +105,40 @@ M.load = function(options)
 end
 
 M.resize = function()
+	-- Check if window is still valid
+	if not M.window or not vim.api.nvim_win_is_valid(M.window) then
+		log.debug("cannot resize: splash window is not valid")
+		return
+	end
+
 	log.debug("resizing splash")
 	local vim_width, vim_height = get_vim_dimensions()
 	local window_config = vim.api.nvim_win_get_config(M.window)
 	window_config.col = math.floor((vim_width - window_config.width) / 2)
 	window_config.row = math.floor((vim_height - window_config.height) / 2)
-
 	vim.api.nvim_win_set_config(M.window, window_config)
 end
-
 M.close = function()
 	log.debug("closing splash")
-	vim.api.nvim_buf_clear_namespace(M.buffer, M.namespace, 0, -1)
-	vim.api.nvim_win_close(M.window, false)
-	vim.api.nvim_buf_delete(M.buffer, {})
 
+	-- Clear namespace if buffer is valid
+	if M.buffer and vim.api.nvim_buf_is_valid(M.buffer) then
+		vim.api.nvim_buf_clear_namespace(M.buffer, M.namespace, 0, -1)
+	end
+
+	-- Close window if valid
+	if M.window and vim.api.nvim_win_is_valid(M.window) then
+		vim.api.nvim_win_close(M.window, false)
+	end
+
+	-- Delete buffer if valid
+	if M.buffer and vim.api.nvim_buf_is_valid(M.buffer) then
+		vim.api.nvim_buf_delete(M.buffer, {})
+	end
+
+	-- Always cleanup state
 	M.buffer = nil
 	M.window = nil
 	M.namespace = nil
 end
-
 return M

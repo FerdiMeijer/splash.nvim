@@ -51,6 +51,6 @@ M.trace = logging_func_for(vim.log.levels.TRACE)
 M.debug = logging_func_for(vim.log.levels.DEBUG)
 M.info = logging_func_for(vim.log.levels.INFO)
 M.warn = logging_func_for(vim.log.levels.WARN)
-M.error = logging_func_for(vim.log.levels.ERROR)
+M.err = logging_func_for(vim.log.levels.ERROR)
 
 return M
