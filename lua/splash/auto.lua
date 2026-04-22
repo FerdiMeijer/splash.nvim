@@ -2,7 +2,7 @@ local M = {}
 
 M.auto_cmds = {}
 
-M.setup_auto_close = function(callback)
+M.setup_auto_close = function(callback, skip_animation_callback)
 	vim.api.nvim_create_autocmd("VimEnter", {
 		callback = function()
 			-- Schedule in next event loop for safety
@@ -10,6 +10,11 @@ M.setup_auto_close = function(callback)
 				for _, event in ipairs({ "ModeChanged", "CursorMoved", "BufEnter" }) do
 					local auto_cmd = vim.api.nvim_create_autocmd(event, {
 						callback = function()
+							-- Skip animation immediately on user interaction
+							if skip_animation_callback then
+								skip_animation_callback()
+							end
+
 							callback()
 
 							-- auto cleanup auto_cmds

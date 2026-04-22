@@ -6,6 +6,13 @@ local auto = require("splash.auto")
 
 local M = {}
 
+---@class SplashAnimation
+---@field enabled? boolean Enable animation. Defaults to false
+---@field type? "blend"|"breathe"|"typewriter"|"characters"|"lines" Animation type: "blend" (one-time fade), "breathe" (continuous pulsing), "typewriter" (types character by character), "characters" (random reveal), "lines" (line by line). Defaults to "blend"
+---@field duration? number Animation duration in milliseconds. For "breathe", this is one complete breath cycle. Defaults to 500
+---@field fps? number Frames per second. Defaults to 30 (60 for typewriter)
+---@field line_direction? "top_to_bottom"|"center_outward" Direction for line animation. Defaults to "top_to_bottom"
+
 ---@class SplashHighlight
 ---@field bg? string Background color (e.g., "NONE", "#800000")
 ---@field fg? string Foreground color (e.g., "#ff0000")
@@ -22,6 +29,7 @@ local M = {}
 ---@field enable_splash? boolean|function Whether to show splash screen. Can be boolean or function returning boolean. Defaults to function checking startup conditions
 ---@field remove_leading_whitespace? boolean Remove common leading whitespace from art for proper centering. Defaults to true
 ---@field window? SplashWindow Window appearance options
+---@field animation? SplashAnimation Animation configuration
 
 ---@private
 M.start = function()
@@ -41,7 +49,7 @@ M.start = function()
 	auto.setup_auto_close(function()
 		splash.close()
 		current.restore_win_opts()
-	end)
+	end, splash.skip_animation) -- Pass skip animation callback
 	auto.setup_auto_resize(splash.resize)
 end
 
@@ -55,6 +63,13 @@ local defaults = {
 	},
 	enable_splash = utils.splash_screen_needed,
 	remove_leading_whitespace = true,
+	animation = {
+		enabled = false,
+		type = "blend",
+		duration = 500,
+		fps = 30,
+		line_direction = "top_to_bottom",
+	},
 }
 
 ---Setup and initialize the splash screen plugin
@@ -70,6 +85,7 @@ M.setup = function(opts)
 		enable_splash = { opts.enable_splash, { "boolean", "function", "nil" }, true },
 		remove_leading_whitespace = { opts.remove_leading_whitespace, { "boolean", "nil" }, true },
 		window = { opts.window, { "table", "nil" }, true },
+		animation = { opts.animation, { "table", "nil" }, true },
 	})
 
 	-- Validate window sub-options if provided
@@ -86,6 +102,45 @@ M.setup = function(opts)
 				fg = { opts.window.highlight.fg, { "string", "nil" }, true },
 				blend = { opts.window.highlight.blend, { "number", "nil" }, true },
 			})
+		end
+	end
+
+	-- Validate animation sub-options if provided
+	if opts.animation then
+		vim.validate({
+			enabled = { opts.animation.enabled, { "boolean", "nil" }, true },
+			type = { opts.animation.type, { "string", "nil" }, true },
+			duration = { opts.animation.duration, { "number", "nil" }, true },
+			fps = { opts.animation.fps, { "number", "nil" }, true },
+			line_direction = { opts.animation.line_direction, { "string", "nil" }, true },
+		})
+
+		-- Validate animation type is one of the supported types
+		if opts.animation.type then
+			local valid_types = { "blend", "breathe", "typewriter", "characters", "lines" }
+			if not vim.tbl_contains(valid_types, opts.animation.type) then
+				error(
+					string.format(
+						"animation.type must be one of: %s (got: %s)",
+						table.concat(valid_types, ", "),
+						opts.animation.type
+					)
+				)
+			end
+		end
+
+		-- Validate line_direction if provided
+		if opts.animation.line_direction then
+			local valid_directions = { "top_to_bottom", "center_outward" }
+			if not vim.tbl_contains(valid_directions, opts.animation.line_direction) then
+				error(
+					string.format(
+						"animation.line_direction must be one of: %s (got: %s)",
+						table.concat(valid_directions, ", "),
+						opts.animation.line_direction
+					)
+				)
+			end
 		end
 	end
 

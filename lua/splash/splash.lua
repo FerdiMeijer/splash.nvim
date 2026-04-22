@@ -1,4 +1,5 @@
 local log = require("splash.logging")
+local animation = require("splash.animation")
 
 local M = {}
 
@@ -98,10 +99,36 @@ M.load = function(options)
 	local splash_width, splash_height = get_dimensions(lines)
 	M.width = splash_width
 	M.height = splash_height
+	M.lines = lines -- Store lines for animation
 	M.buffer = create_splash_buffer(lines)
 
 	M.namespace = vim.api.nvim_create_namespace("splash")
 	M.window = create_splash_window(M.width, M.height, M.buffer, M.namespace, options.window)
+
+	-- Start animation if enabled
+	if options.animation and options.animation.enabled then
+		M.animation_timer = animation.start(
+			M.buffer,
+			M.window,
+			M.namespace,
+			lines,
+			options.animation,
+			options.window.highlight
+		)
+	end
+end
+
+M.skip_animation = function()
+	if M.animation_timer then
+		log.debug("skipping animation")
+		animation.stop(M.animation_timer)
+		M.animation_timer = nil
+
+		-- Ensure final state is correct
+		if M.buffer and vim.api.nvim_buf_is_valid(M.buffer) and M.lines then
+			vim.api.nvim_buf_set_lines(M.buffer, 0, -1, false, M.lines)
+		end
+	end
 end
 
 M.resize = function()
@@ -120,6 +147,12 @@ M.resize = function()
 end
 M.close = function()
 	log.debug("closing splash")
+
+	-- Stop animation if running
+	if M.animation_timer then
+		animation.stop(M.animation_timer)
+		M.animation_timer = nil
+	end
 
 	-- Clear namespace if buffer is valid
 	if M.buffer and vim.api.nvim_buf_is_valid(M.buffer) then
@@ -140,5 +173,7 @@ M.close = function()
 	M.buffer = nil
 	M.window = nil
 	M.namespace = nil
+	M.lines = nil
+	M.animation_timer = nil
 end
 return M
