@@ -79,28 +79,28 @@ M.setup = function(opts)
 
 	-- Validate user options
 	vim.validate({
-		lines = { opts.lines, { "table", "nil" }, true },
-		file = { opts.file, { "string", "nil" }, true },
-		enable_logging = { opts.enable_logging, { "boolean", "nil" }, true },
-		enable_splash = { opts.enable_splash, { "boolean", "function", "nil" }, true },
-		remove_leading_whitespace = { opts.remove_leading_whitespace, { "boolean", "nil" }, true },
-		window = { opts.window, { "table", "nil" }, true },
-		animation = { opts.animation, { "table", "nil" }, true },
+		lines = { opts.lines, { "table", "nil" }, optional = true },
+		file = { opts.file, { "string", "nil" }, optional = true },
+		enable_logging = { opts.enable_logging, { "boolean", "nil" }, optional = true },
+		enable_splash = { opts.enable_splash, { "boolean", "function", "nil" }, optional = true },
+		remove_leading_whitespace = { opts.remove_leading_whitespace, { "boolean", "nil" }, optional = true },
+		window = { opts.window, { "table", "nil" }, optional = true },
+		animation = { opts.animation, { "table", "nil" }, optional = true },
 	})
 
 	-- Validate window sub-options if provided
 	if opts.window then
 		vim.validate({
-			border = { opts.window.border, { "string", "table", "nil" }, true },
-			highlight = { opts.window.highlight, { "table", "nil" }, true },
+			border = { opts.window.border, { "string", "table", "nil" }, optional = true },
+			highlight = { opts.window.highlight, { "table", "nil" }, optional = true },
 		})
 
 		-- Validate highlight sub-options if provided
 		if opts.window.highlight then
 			vim.validate({
-				bg = { opts.window.highlight.bg, { "string", "nil" }, true },
-				fg = { opts.window.highlight.fg, { "string", "nil" }, true },
-				blend = { opts.window.highlight.blend, { "number", "nil" }, true },
+				bg = { opts.window.highlight.bg, { "string", "nil" }, optional = true },
+				fg = { opts.window.highlight.fg, { "string", "nil" }, optional = true },
+				blend = { opts.window.highlight.blend, { "number", "nil" }, optional = true },
 			})
 		end
 	end
@@ -108,11 +108,11 @@ M.setup = function(opts)
 	-- Validate animation sub-options if provided
 	if opts.animation then
 		vim.validate({
-			enabled = { opts.animation.enabled, { "boolean", "nil" }, true },
-			type = { opts.animation.type, { "string", "nil" }, true },
-			duration = { opts.animation.duration, { "number", "nil" }, true },
-			fps = { opts.animation.fps, { "number", "nil" }, true },
-			line_direction = { opts.animation.line_direction, { "string", "nil" }, true },
+			enabled = { opts.animation.enabled, { "boolean", "nil" }, optional = true },
+			type = { opts.animation.type, { "string", "nil" }, optional = true },
+			duration = { opts.animation.duration, { "number", "nil" }, optional = true },
+			fps = { opts.animation.fps, { "number", "nil" }, optional = true },
+			line_direction = { opts.animation.line_direction, { "string", "nil" }, optional = true },
 		})
 
 		-- Validate animation type is one of the supported types
