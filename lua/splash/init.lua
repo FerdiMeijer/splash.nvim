@@ -137,11 +137,17 @@ M.setup = function(opts)
 	end
 
 	M.options = vim.tbl_deep_extend("force", defaults, opts)
+	-- Enable logging before evaluating enable_splash, which may call the predicate.
+	logger.enabled = M.options.enable_logging
 
-	if
-		(type(M.options.enable_splash) == "function" and M.options.enable_splash())
-		or (M.options.enable_splash == true)
-	then
+	local configured_enable_splash = M.options.enable_splash
+	local uses_startup_predicate = configured_enable_splash == utils.splash_screen_needed
+	local enabled = configured_enable_splash
+	if type(enabled) == "function" then
+		enabled = enabled()
+	end
+
+	if enabled and (uses_startup_predicate or utils.splash_screen_needed()) then
 		vim.opt.shortmess:append("I")
 		M.start()
 	end

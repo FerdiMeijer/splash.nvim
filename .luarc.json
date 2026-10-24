@@ -1,0 +1,13 @@
+{
+    "workspace": {
+        "library": [
+            "/usr/share/nvim/runtime/lua",
+            "/usr/share/nvim/runtime/lua/vim"
+        ]
+    },
+    "diagnostics": {
+        "globals": [
+            "vim"
+        ]
+    }
+}
