@@ -233,7 +233,7 @@ M.fade_in_breathe = function(buffer, window, namespace, lines, options, original
 			if timer_closing then
 				return
 			end
-			
+
 			if not vim.api.nvim_buf_is_valid(buffer) then
 				if not timer_closing then
 					timer_closing = true
@@ -357,6 +357,10 @@ M.fade_in_blend = function(buffer, window, namespace, lines, options, original_h
 			end
 
 			current_step = current_step + 1
+			if current_step > steps then
+				timer:close()
+				return
+			end
 			local progress = current_step / steps
 
 			-- Interpolate color
